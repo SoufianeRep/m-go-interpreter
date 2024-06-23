@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"monkey/token"
 )
 
@@ -32,6 +31,8 @@ func (l *Lexer) readChar() {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	l.skipWhitespace()
+
 	switch l.ch {
 	case '=':
 		tok = newToken(token.ASSIGN, l.ch)
@@ -57,13 +58,16 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
+		} else if isDigit(l.ch) {
+			tok.Type = token.INT
+			fmt.Println(tok.Literal)
+			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
 	}
 
 	l.readChar()
-	fmt.Println(tok.Type, tok.Literal)
 	return tok
 }
 
@@ -81,4 +85,22 @@ func (l *Lexer) readIdentifier() string {
 
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && 'Z' <= ch || '_' == ch
+}
+
+func (l *Lexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' {
+		l.readChar()
+	}
+}
+
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && '9' >= ch
 }
