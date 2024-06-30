@@ -11,12 +11,14 @@ type Lexer struct {
 	ch           byte // current char under examination
 }
 
+// New creates and initializes a new Lexer instance with the given input string.
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar()
 	return l
 }
 
+// readChar reads the next character in the input and advances the lexer positions.
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
@@ -28,6 +30,7 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+// peekChar returns the next character without advancing the lexer positions.
 func (l *Lexer) peekChar() byte {
 	if l.readPosition >= len(l.input) {
 		return 0
@@ -36,6 +39,7 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
+// NextToken identifies the next token in the input and advances the lexer's position.
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
@@ -103,10 +107,12 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
+// newToken creates a new token of the specified type with the given character as its literal value.
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
+// readIdentifier reads a sequence of characters that form an identifier.
 func (l *Lexer) readIdentifier() string {
 	position := l.position
 	for isLetter(l.ch) {
@@ -115,16 +121,19 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
+// isLetter checks if the character is a letter (a-z, A-Z, or _).
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && 'Z' <= ch || '_' == ch
 }
 
+// skipWhitespace skips over whitespace characters in the input.
 func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' || l.ch == '\r' {
 		l.readChar()
 	}
 }
 
+// readNumber reads a sequence of characters that form a number.
 func (l *Lexer) readNumber() string {
 	position := l.position
 	for isDigit(l.ch) {
@@ -133,6 +142,7 @@ func (l *Lexer) readNumber() string {
 	return l.input[position:l.position]
 }
 
+// isDigit checks if the character is a digit (0-9).
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
 }
